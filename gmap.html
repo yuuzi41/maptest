@@ -43,16 +43,21 @@
             }
           } else {
             //json via ajax
-            $.ajax({
-              type: "GET",
-              url: '',
-              dataType: "json",
-              success: function(obj) {
-                pos.lat = obj.latitude;
-                pos.lng = obj.longitude;
-                marker.setPosition(pos);
-              }
-            });
+
+            if (id !== "") {
+              //todo: valid url
+              var url = 'http://xxxx?id='+id;
+              $.ajax({
+                type: "GET",
+                url: '',
+                dataType: "json",
+                success: function(obj) {
+                  marker['a'].p.lat = obj.latitude;
+                  marker['a'].p.lng = obj.longitude;
+                  marker.setPosition(pos);
+                }
+              });
+            *
           }
         }
     
@@ -75,7 +80,7 @@
         };
         
         function loadId() {
-          alert($(':text[name="id"]').val());
+          id = $(':text[name="id"]').val();
         }
     </script>
 </head>

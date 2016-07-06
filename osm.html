@@ -53,8 +53,8 @@
                 url: url,
                 dataType: "json",
                 success: function(obj) {
-                  pos[0] = obj.latitude;
-                  pos[1] = obj.longitude;
+                  marker['a'].p[0] = obj.latitude;
+                  marker['a'].p[1] = obj.longitude;
                   marker.setLatLng(pos);
                 }
               });
