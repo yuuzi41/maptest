@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>OpenStreetMap</title>
+    <style>
+        @charset "utf-8";
+        #map {
+            height: 600px;
+            width:  600px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.css" />
+    <script src="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.js"></script>
+    <script>
+        var map;
+        var id = "";
+        var marker = {};
+        
+        function reloadPosition() {
+          var bound = map.getBounds();
+          var center = bound.getCenter();
+          
+          // radius calc : refs http://mononofu.hatenablog.com/entry/20090324/1237894846
+          var earthcircum = 40054.782;
+          // CenterPoint to SouthBound distance(km)
+          // latitude -> distance : earth-circumference = 2 * pi * 40054.782
+          var csdistance = Math.abs(center.lat - bound.getSouth()) * earthcircum/360.0;
+          // CenterPoint to EastBound distance(km)
+          // longitude -> distance : earth-
+          var cedistance = Math.abs(center.lng - bound.getEast()) * Math.cos(center.lat * Math.PI / 180) * earthcircum/360.0;
+          
+          var radiusdist = Math.max(csdistance, cedistance);
+          
+          console.log('radius: ' + radiusdist);
+          
+          if (true) {
+            //random walker
+            
+            for (var i in ['a','b','c','d','e']) {
+              marker[i].p[0] += Math.random() * 0.01 - 0.005;
+              marker[i].p[1] += Math.random() * 0.01 - 0.005;
+              marker[i].m.setLatLng(marker[i].p);
+            }
+          } else {
+            //json via ajax
+            
+            if (id !== "") {
+              //todo: valid url
+              var url = 'http://xxxx?id='+id;
+              $.ajax({
+                type: "GET",
+                url: url,
+                dataType: "json",
+                success: function(obj) {
+                  pos[0] = obj.latitude;
+                  pos[1] = obj.longitude;
+                  marker.setLatLng(pos);
+                }
+              });
+            }
+          }
+        }
+    
+        // event on page loaded...
+        window.onload = function(){
+          function initMap() {
+            map = L.map('map').setView([51.505, -0.09], 13);
+            
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            for (var i in ['a','b','c','d','e']) {
+              marker[i] = {m: L.marker([51.5, -0.09]).addTo(map), p: [51.5, -0.09]};
+            }
+          }
+          
+          initMap();
+          
+          setInterval(reloadPosition, 300);
+        };
+        
+        // button click event
+        function loadId() {
+          id = $(':text[name="id"]').val();
+        }
+    </script>
+</head>
+<body>
+    <form>
+        <input type="text" name="id" />
+        <input type="button" value="reload" onclick="loadId()" />
+    </form>
+    <div id="map"></div>
+</body>
+</html>
+

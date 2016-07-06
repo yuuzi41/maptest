@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>Google Map</title>
+    <style>
+        @charset "utf-8";
+        #map {
+            height: 600px;
+            width:  600px;
+        }
+    </style>
+    <script src="https://maps.google.com/maps/api/js?sensor=true"></script>
+    <script src="jquery-3.0.0.js"></script>
+    <script>
+        var map;
+        var id;
+        var marker = {};
+
+        function reloadPosition() {
+          var swpoint = map.getBounds().getSouthWest();
+          var center = map.getCenter();
+          
+          // radius calc : refs http://mononofu.hatenablog.com/entry/20090324/1237894846
+          var earthcircum = 40054.782;
+          // CenterPoint to SouthBound distance(km)
+          // latitude -> distance : earth-circumference = 2 * pi * 40054.782
+          var csdistance = Math.abs(center.lat() - swpoint.lat()) * earthcircum/360.0;
+          // CenterPoint to EastBound distance(km)
+          // longitude -> distance : earth-
+          var cedistance = Math.abs(center.lng() - swpoint.lng()) * Math.cos(center.lat() * Math.PI / 180) * earthcircum/360.0;
+          
+          var radiusdist = Math.max(csdistance, cedistance);
+          
+          console.log('radius:' + radiusdist);
+
+          if (true) {
+            //random walker
+            for (var i in ['a','b','c','d','e']) {
+              marker[i].p.lat += Math.random() * 0.02 - 0.01;
+              marker[i].p.lng += Math.random() * 0.02 - 0.01;
+              marker[i].m.setPosition(marker[i].p);
+            }
+          } else {
+            //json via ajax
+            $.ajax({
+              type: "GET",
+              url: '',
+              dataType: "json",
+              success: function(obj) {
+                pos.lat = obj.latitude;
+                pos.lng = obj.longitude;
+                marker.setPosition(pos);
+              }
+            });
+          }
+        }
+    
+        window.onload = function(){
+          function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+              center: {lat: -34.397, lng: 150.644},
+              zoom: 8
+            });
+
+            for (var i in ['a','b','c','d','e']) {
+              var initPos = {lat: -34.397, lng: 150.644};
+              marker[i] = {m: new google.maps.Marker({position: initPos, map: map}), p: initPos};
+            }
+          }
+          
+          initMap();
+          
+          setInterval(reloadPosition, 300);
+        };
+        
+        function loadId() {
+          alert($(':text[name="id"]').val());
+        }
+    </script>
+</head>
+<body>
+    <form>
+        <input type="text" name="id" />
+        <input type="button" value="reload" onclick="loadId()" />
+    </form>
+    <div id="map"></div>
+</body>
+</html>
+
